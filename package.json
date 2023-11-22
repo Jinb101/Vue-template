@@ -1,0 +1,53 @@
+{
+  "name": "happy_farm",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint:create": "eslint --init",
+    "lint": "eslint src/**/*.{js,vue} --fix "
+  },
+  "dependencies": {
+    "@vant/touch-emulator": "^1.4.0",
+    "amfe-flexible": "^2.2.1",
+    "axios": "^1.6.2",
+    "babel-eslint": "^10.1.0",
+    "babel-helper-vue-jsx-merge-props": "^2.0.3",
+    "eslint-plugin-import": "^2.29.0",
+    "js-audio-recorder": "^1.0.7",
+    "js-md5": "^0.8.3",
+    "pinia": "^2.1.7",
+    "postcss": "^8.4.31",
+    "postcss-loader": "^7.3.3",
+    "postcss-pxtorem": "^6.0.0",
+    "postcss-value-parser": "^4.2.0",
+    "qs": "^6.11.2",
+    "vant": "^4.8.0",
+    "vue": "^3.3.8",
+    "vue-router": "^4.2.5",
+    "vue-wechat-title": "^2.0.7"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.5.0",
+    "@vue/cli-plugin-router": "^5.0.8",
+    "eslint": "^8.54.0",
+    "eslint-plugin-vue": "^9.18.1",
+    "less": "^3.10.3",
+    "lint-staged": "^15.1.0",
+    "path-browserify": "^1.0.1",
+    "unplugin-vue-components": "^0.25.2",
+    "vite": "^5.0.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,vue}": [
+      "npm run lint",
+      "git add"
+    ]
+  },
+  "gitHooks": {
+    "pre-commit": "lint-staged"
+  }
+}

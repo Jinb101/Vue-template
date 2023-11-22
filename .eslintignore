@@ -1,0 +1,8 @@
+/build/
+/config/
+/dist/
+/*.js
+/node_modules
+/src/utils/*.js
+/src/router/.js
+/package-lock.json
