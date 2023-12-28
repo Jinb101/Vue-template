@@ -6,13 +6,9 @@ const AsyncRouterView = defineAsyncComponent(() => import('vue-router').then(m =
 </script>
 
 <template>
-  <div id="app">
-    <s_view>
+    <div id="app">
         <AsyncRouterView />
-    </s_view>
-  </div>
+    </div>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

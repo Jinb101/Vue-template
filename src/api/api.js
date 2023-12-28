@@ -3,7 +3,6 @@ import { TouristApi, MainApi } from "./link";
 import route from "@/router/routes.js";
 // import store from "@/store/index.js";
 import qs from "qs";
-import { Toast, Dialog } from "vant";
 
 // 请求源地址
 let prefix = window.location.origin;
@@ -11,9 +10,10 @@ let prefix = window.location.origin;
 
 console.log(prefix);
 console.log(process.env.NODE_ENV);
+
 // 创建一个 Axios 实例
 const http = axios.create({
-  baseURL: prefix + "api", // 设置基本的请求地址
+  baseURL: "", // 设置基本的请求地址
   timeout: 5000, // 设置请求超时时间
 });
 
@@ -76,7 +76,7 @@ http.interceptors.response.use(
       case 408: // 该账号已禁用
         c = 408;
         break;
-      case 410: // token已过期
+      case 410: // token 已过期
         c = 410;
         break;
       default:
@@ -92,7 +92,7 @@ http.interceptors.response.use(
   }
 );
 
-// 封装get请求
+// 封装 get 请求
 function get(url, params) {
   const api = { ...TouristApi, ...MainApi };
   const apiUrl = api[url];
@@ -102,7 +102,7 @@ function get(url, params) {
   return http.get(apiUrl, { params });
 }
 
-// 封装post请求
+// 封装 post 请求
 function post(url, data) {
   const api = { ...TouristApi, ...MainApi };
   const apiUrl = api[url];

@@ -4,73 +4,82 @@ console.log(createRouter);
 let prefix_title = "";
 let after_title = "";
 
-function routerObj(path, com, name, title, to = "", child) {
-  let opt = {
-    path: path,
-    name: name,
-    meta: {
-      title: prefix_title + title + after_title,
-      to: to,
-      name: name,
-      path: path,
-    },
-  };
-  // eslint-disable-next-line no-undef
-  if (process.env.NODE_ENV === "development") {
-    opt.component = (resolve) => import(/* @vite-ignore */ `../view/${com}`);
-  } else {
-    opt.component = () =>
-      import(/* @vite-ignore */ `../view/${com}`).then(
-        (module) => module.default
-      );
-  }
-  if (child !== undefined && child.length > 0) {
-    opt.children = child;
-  }
-  return opt;
-}
+const routesConfig = [
+  // 动态添加的路由配置对象
+  // path, component,name,title,footer,header,header_right
+  //   ["/page", "page/index.vue", "page", "首页", false, false],
+];
+
+const toRoute = ([
+  path,
+  component,
+  name,
+  title,
+  isTab,
+  hasHeader,
+  type,
+  keepAlive,
+  to,
+  children,
+]) => ({
+  path,
+  name,
+  meta: {
+    title: prefix_title + title + after_title,
+    to: to ?? "",
+    name,
+    type: type ?? "farm",
+    tab: isTab ?? false,
+    hea: hasHeader ?? true,
+  },
+  component: () =>
+    import(
+      /* @vite-ignore */
+      `${component.startsWith("components") ? "../" : "../view/"}${component}`
+    ).then((module) => module.default),
+  ...(keepAlive ? { meta: { keepAlive: true } } : {}),
+  ...(children ? { children: children.map(toRoute) } : {}),
+});
+
+const routes = routesConfig.map(toRoute);
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: "/",
-      redirect: {
-        name: "start",
-      },
+      redirect: "/page",
     },
-    // 将动态添加的路由配置对象添加到routes数组中
-    routerObj("/start", "start/index.vue", "start", "首页"),
+    {
+      name: "page",
+      path: "/page",
+      component: () => import("@/view/page/index.vue"),
+    },
   ],
 });
 
-// 路由拦截，如果没有登录 则返回登录页面
-// router.beforeEach((to, from, next) => {
-//   console.log(router, VueR, router.routes);
-// });
+routes.forEach((route) => router.addRoute(route));
 
-console.log(router.options.routes);
+//   router.beforeEach((to, from, next) => {
+
+//   });
 
 router.afterEach((route) => {
-  // 从路由的元信息中获取 title 属性
-  if (route.meta.title) {
-    // document.title = route.meta.title;
-    // 如果是 iOS 设备，则使用如下 hack 的写法实现页面标题的更新
-    // if (navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)) {
-    //   const hackIframe = document.createElement("iframe");
-    //   hackIframe.style.display = "none";
-    //   hackIframe.src =
-    //     // eslint-disable-next-line no-undef
-    //     process.env.NODE_ENV === "development"
-    //       ? "../../../"
-    //       : "./" + "utils/static/html/fixIosTitle.html?r=" + Math.random();
-    //   document.body.appendChild(hackIframe);
-    //   // eslint-disable-next-line no-unused-vars
-    //   setTimeout((_) => {
-    //     document.body.removeChild(hackIframe);
-    //   }, 300);
-    // }
-  }
+  // if (route.meta.title) {
+  //   document.title = route.meta.title;
+  //   if (navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)) {
+  //     const hackIframe = document.createElement("iframe");
+  //     hackIframe.style.display = "none";
+  //     hackIframe.src =
+  //       process.env.NODE_ENV === "development"
+  //         ? "../../../"
+  //         : "./" + "utils/static/html/fixIosTitle.html?r=" + Math.random();
+  //     document.body.appendChild(hackIframe);
+  //     setTimeout((_) => {
+  //       document.body.removeChild(hackIframe);
+  //     }, 300);
+  //   }
+  // }
 });
 
 export default router;
