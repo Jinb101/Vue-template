@@ -68,9 +68,12 @@ function sendLoginEvent() {
 function handleIncomingMessage(event) {
   console.log("Received data:", event.data);
   const data = JSON.parse(event.data);
-  const wehCodng = Tools.storage("l", "get", "coding");
+  const wehCodng = Tools.storage("l", "get", "coding", {});
   switch (data.eventType) {
     case type.ERROR:
+      mainStore.Binding = false;
+      mainStore.loading = false;
+      break;
     case type.EQUIPMENT:
       mainStore.Binding = false;
       mainStore.loading = false;
@@ -131,6 +134,7 @@ function handleIncomingMessage(event) {
       }
       sendLoginEvent();
       mainStore.Binding = true;
+      mainStore.loading = false;
       console.log("BindDing data:", data);
       break;
     case type.TEACHER:
@@ -153,7 +157,6 @@ function sendPingEvent() {
     operationType: "BANPAI_PING",
     equipment_number: curCoding || coding.value,
   };
-  console.log("Sending ping event");
   sendMessage(JSON.stringify(pingEvent));
 }
 
@@ -184,3 +187,5 @@ connectToServer();
 
 // 发送心跳事件
 setInterval(sendPingEvent, 3000);
+
+export { sendLoginEvent, reconnect };

@@ -22,8 +22,6 @@ const app = createApp(App);
 //  Pinia 实例
 const pinia = createPinia();
 
-
-
 app.use(ElementPlus);
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component);

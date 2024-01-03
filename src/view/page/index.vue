@@ -14,11 +14,13 @@
                      class=" h-[60%] min-w-[45%] bg-white rounded-2xl shadow-2xl border border-gray-300 p-10 flex flex-col justify-start items-center">
                     <div class="h-1/3 text-2xl text-gray-500 font-semibold flex justify-center items-start">请先绑定班级班牌</div>
                     <div class=" h-1/2 w-full flex justify-between items-center px-[3rem]">
-                        <div v-for=" item in coding"
+                        <div v-for=" item in coding || curCoding"
                              class="  text-6xl border border-gray-400  px-2 py-2 rounded-2xl">
                             {{ item }}
                         </div>
                     </div>
+                    <div class=" text-sm text-blue-300"
+                         @click="dialogFormVisible = true">已有班牌？</div>
                     <div class=" h-1/3 w-full text-gray-400 flex flex-col justify-end items-center tracking-wider">
                         请通过 园所端 - 班级列表 绑定
                     </div>
@@ -122,10 +124,12 @@
                                      v-for='te in TeacherData'
                                      :key="te.id">
                                     <span>{{ te.name }}</span>
-                                    <span v-if="te.status === '2'"
+                                    <span v-if="te.status === '1'"
                                           class=" ml-4 text-green-400">已到</span>
-                                    <span v-else
+                                    <span v-else-if="te.status === '2'"
                                           class=" text-gray-400 ml-4">未到</span>
+                                    <span v-else-if="te.status === '3'"
+                                          class=" text-gray-400 ml-4">迟到</span>
                                 </div>
                             </div>
                         </div>
@@ -200,7 +204,9 @@
                          class=" w-9 h-[70%] rounded-t-full  rounded-b-full theme_no  flex justify-center items-center vertical-text z-50 text-sm">
                         班级风采
                     </div>
-                    <div class="h-full w-full flex overflow-x-auto pl-8 py-2 absolute left-0 top-0">
+                    <div class="h-full w-full flex overflow-x-auto pl-8 py-2 absolute left-0 top-0 smooth-scroll"
+                         v-if="class_style.length > 0"
+                         ref="imgContainer">
                         <div v-for="(url, index) in class_style"
                              :key="url"
                              class="border border-indigo-300  ml-4 p-2 rounded-2xl">
@@ -210,27 +216,52 @@
                                           :src="url"
                                           :initial-index="imgIndex"
                                           @show="curIndex(index)"
-                                          class="flex-shrink-0 w-full h-full object-contain   " />
+                                          class="flex-shrink-0 w-full h-full object-contain" />
                             </div>
                         </div>
                     </div>
+                    <div v-else
+                         class=" w-full h-full flex justify-center items-center text-gray-400 tracking-wider"> 快去新增相册吧</div>
                 </div>
 
 
 
             </div>
         </div>
+
+
+        <el-dialog v-model="dialogFormVisible"
+                   title="绑定班牌">
+            <el-form>
+                <el-form-item label="您的班牌编码："
+                              :label-width="formLabelWidth">
+                    <el-input v-model="formCod"
+                              autocomplete="off" />
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button @click="dialogFormVisible = false">取消</el-button>
+                    <el-button type="primary"
+                               @click="editCod">
+                        确认
+                    </el-button>
+                </span>
+            </template>
+        </el-dialog>
+
     </div>
 </template>
 
 <script setup>
-import { inject, onMounted, ref, unref, watch, nextTick, onBeforeUnmount } from 'vue'
+import { inject, onMounted, ref, unref, watch, nextTick, onBeforeUnmount, reactive } from 'vue'
+import { useRouter } from 'vue-router'
 import * as socket from "@/utils/tools/socket.js";
 import { useMainStore } from "@/store/index.js";
 import { storeToRefs } from "pinia";
 import VideoPay from '@/components/video/VideoPay.vue'
 
-
+const router = useRouter()
 const mainStor = useMainStore();
 const { coding, Binding, NoticeData, AttendanceData, loading, RecipesData, class_style, class_video, TeacherData, ParkInfo } = storeToRefs(mainStor);
 const Tools = inject("Tools");
@@ -241,6 +272,10 @@ const receivedMessage = ref("");
 const curCoding = Tools.storage("l", "get", "coding");
 
 const iconKey = ref('0')
+const imgContainer = ref(null)
+const dialogFormVisible = ref(false)
+const formLabelWidth = '140px'
+const formCod = ref('')
 
 
 // time
@@ -314,6 +349,16 @@ const curIndex = (index) => {
 }
 
 
+const editCod = () => {
+    // 获取 修改缓存
+    Tools.storage("l", "set", "coding", formCod.value);
+    coding.value = formCod.value;
+    dialogFormVisible.value = false
+    Binding.value = true
+    loading.value = true
+    router.go(0)
+    // 刷新
+}
 
 watch(
     () => coding.value,
@@ -324,7 +369,6 @@ watch(
             setTimeout(() => {
                 loading.value = false
             }, 1000);
-            console.log(loading.value);
         } else {
             loading.value = false
             Binding.value = false
@@ -333,17 +377,7 @@ watch(
     { immediate: true }
 );
 
-// const element = document.documentElement; // 获取整个文档的元素
 
-// if (element.requestFullscreen) {
-//   element.requestFullscreen(); // 标准方法
-// } else if (element.mozRequestFullScreen) {
-//   element.mozRequestFullScreen(); // Firefox
-// } else if (element.webkitRequestFullscreen) {
-//   element.webkitRequestFullscreen(); // Chrome、Safari 和 Opera
-// } else if (element.msRequestFullscreen) {
-//   element.msRequestFullscreen(); // IE/Edge
-// }
 const getWeather = async () => {
     http.post('GetWeather', {
         class_id: ParkInfo.value.class_id
@@ -367,9 +401,34 @@ const getWeather = async () => {
     })
 }
 
+function autoScroll(el) {
+    if (!el) return;
+    const scroll = () => {
+        let parentDom = el;
+        // 判断是否有滚动条
+        if (parentDom.scrollWidth <= parentDom.clientWidth) return;
+        //判断元素是否滚动到右边界 (滚动距离 + 可视宽度 = 元素总宽度)
+        if (
+            parentDom.scrollLeft + parentDom.clientWidth ===
+            parentDom.scrollWidth
+        ) {
+            parentDom.scrollLeft = 0;
+        } else {
+            parentDom.scrollLeft++; // 元素自增距离左边界
+        }
+    };
+    let timer = setInterval(scroll, 100);
+    el.onmouseenter = () => {
+        clearInterval(timer);
+        timer = null;
+    };
+    el.onmouseleave = function () {
+        timer = setInterval(scroll, 100);
+    };
+}
+
 watch(() => ParkInfo.value, (v) => {
     if (v && v.weather) {
-        console.log(v);
         switch (v.weather.casts[0].dayweather) {
             case '多云':
                 iconKey.value = '1';
@@ -385,16 +444,25 @@ watch(() => ParkInfo.value, (v) => {
         }
     }
 });
+watch(() => imgContainer.value, (v) => {
+    if (v && !loading.value && Binding.value) {
+        autoScroll(v)
+    }
+});
+
+
+// 全屏是否可用
+
 
 getCurrentTime()
 onMounted(() => {
-
     setInterval(() => {
         getCurrentTime()
     }, 1000);
     setInterval(() => {
         getWeather()
     }, 60 * 60000);
+
 })
 
 // 页面销毁时
@@ -408,7 +476,7 @@ onBeforeUnmount(() => {
 
 </script>
 
-<style scoped>
+<style scoped lang="less">
 .page {
     height: 100%;
     width: 100%;
@@ -465,5 +533,29 @@ onBeforeUnmount(() => {
     height: 100%;
     /* 设置视频高度为容器的 100% */
     border-radius: 6px;
+}
+
+.smooth-scroll {
+    scroll-behavior: smooth;
+}
+
+.el-button--text {
+    margin-right: 15px;
+}
+
+.el-select {
+    width: 300px;
+}
+
+.el-input {
+    width: 300px;
+}
+
+.dialog-footer button:first-child {
+    margin-right: 10px;
+}
+
+:deep(.el-dialog) {
+    border-radius: 30px;
 }
 </style>
