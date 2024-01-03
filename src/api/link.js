@@ -1,7 +1,8 @@
 const TouristApi = {};
 
 const MainApi = {
-  login: "parents/vote/getComments",
+  // 天气
+  GetWeather: "nursery/electronic_class_cards/GetWeather",
 };
 
 export { TouristApi, MainApi };

@@ -13,7 +13,7 @@ console.log(process.env.NODE_ENV);
 
 // 创建一个 Axios 实例
 const http = axios.create({
-  baseURL: "", // 设置基本的请求地址
+  baseURL: "http://official.jsxrk.xin/api", // 设置基本的请求地址
   timeout: 5000, // 设置请求超时时间
 });
 
@@ -39,8 +39,6 @@ http.interceptors.request.use(
       } else {
         x = {};
       }
-      x.n_id = localStorage.getItem("nid") || "";
-      x.access_token = getToken();
       config.data = qs.stringify(x);
     }
     // 这里可以添加一些请求拦截前的逻辑，比如添加请求头、处理请求参数等

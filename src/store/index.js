@@ -10,12 +10,27 @@ export const useMainStore = defineStore("main", {
   // 2. 必须是箭头函数，这样是为了更好的 TS 类型推导
   state: () => {
     return {
+      loading: true,
       // 设备编码
       coding: null,
       // 是否绑定
-      Binding: null,
+      Binding: true,
+      // 园所信息
+      ParkInfo: null,
+      // 通知数据
+      NoticeData: null,
+      // 考勤数据
+      AttendanceData: null,
+      // 营养食谱数据
+      RecipesData: null,
+      // 班级风采数据
+      class_video: "",
+      class_style: [],
+      // 老师考勤数据
+      TeacherData: null,
     };
   },
+  persist: true, // 添加 persist 属性
   getters: {},
   actions: {},
 });

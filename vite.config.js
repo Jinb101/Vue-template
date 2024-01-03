@@ -48,7 +48,7 @@ export default defineConfig({
     },
     server: {
         // 服务器主机名，如果允许外部访问，可设置为"0.0.0.0"
-        // host: 'localhost',
+        host: '0.0.0.0',
         port: 8101, // 服务器端口号
         open: false, // 是否自动打开浏览器
         // 代理

@@ -9,7 +9,16 @@ export default {
           selectorBlackList: [],// 忽略转换正则匹配项
           replace: true,
           mediaQuery: false,
-          minPixelValue: 0
+          minPixelValue: 0,
+          viewportWidth: 750, // 设计稿宽度
+          viewportHeight: 1334, // 设计稿高度
+          unitPrecision: 5,
+          viewportUnit: 'vw',
+          selectorBlackList: [],
+          minPixelValue: 1,
+          mediaQuery: false,
+          landscape: false,
         }
     },
   }
+
