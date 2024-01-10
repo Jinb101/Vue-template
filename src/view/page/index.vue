@@ -26,12 +26,12 @@
                     </div>
                 </div>
             </div>
-            <div v-else
-                 class=" page flex theme  flex-col justify-between items-center">
 
+            <div v-if="Binding && !loading"
+                 class=" page flex theme  flex-col justify-between items-center">
                 <div class=" h-[6%] w-full flex justify-between items-center">
                     <div class=" flex justify-between items-center text-white">
-                        <img :src="ParkInfo.logo"
+                        <img :src="ParkInfo.logo || ''"
                              alt=""
                              class=" h-[2rem] w-[2rem]"
                              srcset="">
@@ -42,14 +42,19 @@
                     <div class=" flex">
                         <div class=" text-white relative flex justify-start items-center">
                             <el-icon class=" ml-4 absolute  top-0"
-                                     size="4rem">
-                                <MostlyCloudy v-if='iconKey === "1"' />
-                                <Sunny v-if='iconKey === "3"' />
+                                     size="3rem">
+                                <MostlyCloudy v-if='ParkInfo.weather.casts
+                                [0].dayweather === "多云" || ParkInfo.weather.casts
+                                [0].dayweather === "阴"' />
+                                <Sunny v-if='ParkInfo.weather.casts
+                                [0].dayweather === "晴"' />
+                                <Drizzling v-if='ParkInfo.weather.casts
+                                [0].dayweather === "小雨"' />
                             </el-icon>
-                            <div class=" flex flex-col justify-center items-center">
-                                <span class=" text-4xl">{{ ParkInfo.weather.casts
+                            <div class=" flex flex-col justify-center items-center ml">
+                                <span class=" text-3xl">{{ ParkInfo.weather.casts
                                 [0].daytemp }}°C </span>
-                                <span class=" text-sm"> {{ ParkInfo.weather.casts
+                                <span class=" text-sm mt-2"> {{ ParkInfo.weather.casts
                                 [0].dayweather }}</span>
                             </div>
                         </div>
@@ -57,7 +62,7 @@
                             <span class=" text-white text-2xl font-semibold">
                                 {{ formattedTime.time }}
                             </span>
-                            <span class=" mt-4 text-white font-semibold ">
+                            <span class=" mt-2 text-white font-semibold ">
                                 {{ formattedTime.year }}
                             </span>
 
@@ -74,15 +79,13 @@
                                  class=" absolute top-[-1.5rem] left-[38%] z-10 w-1/4 h-10 theme_no rounded-3xl flex justify-center items-center text-sm">
                                 <span>营业膳食</span>
                             </div>
-                            <div
-                                 class=" text-gray-500 font-semibold  rounded-2xl h-full w-full px-2 pt-4 flex flex-col justify-center items-center text-sm  ">
-                                <div class=" max-h-1/2 w-full flex flex-col justify-start items-center ">
-                                    <span>早饭</span>
-                                    <span class=" mt-1">牛奶，蛋糕卷，小米粥</span>
-                                </div>
-                                <div class="  max-h-1/2 w-full flex flex-col justify-start items-center mt-1">
-                                    <span>加餐</span>
-                                    <span class=" mt-1">樱桃，哈密瓜</span>
+                            <div ref="food"
+                                 class="smooth-scroll text-gray-500 font-semibold  rounded-2xl h-full w-full px-2 pt-[9rem] flex flex-col justify-center items-center text-sm overflow-y-auto ">
+                                <div class=" max-h-1/2 w-full flex flex-col justify-start items-center mt-2"
+                                     v-for=" (re, reIndex) in Dietlist"
+                                     :key="reIndex">
+                                    <span>{{ re.title }}</span>
+                                    <span class=" mt-1">{{ re.content }}</span>
                                 </div>
                             </div>
                         </div>
@@ -99,10 +102,11 @@
                                     <span class=" text-gray-500 font-semibold text-base tracking-wider">通知动态</span>
                                 </div>
                             </div>
-                            <div class=" h-4/5 w-full overflow-y-auto py-2 ">
+                            <div class=" h-4/5 w-full overflow-hidden py-2 smooth-scroll"
+                                 ref="msgNot">
                                 <div v-for=" msg in NoticeData"
                                      :key="msg.key"
-                                     class=" h-12 w-full py-1 px-4 text-left border-b border-gray-200 flex justify-between items-center  text-sm">
+                                     class=" h-14 w-full py-1 px-4 text-left border-b border-gray-200 flex justify-between items-center  text-sm">
                                     <div class=" w-1/3 truncate"> {{ msg.title }}</div>
                                     <div> {{ timestampToDateTime(msg.time) }}</div>
 
@@ -137,12 +141,12 @@
                     </div>
 
                     <div class="  w-[30%] h-full  flex flex-col justify-between items-center">
-                        <div class=" h-1/3 w-full bg-white rounded-2xl relative">
+                        <div class=" h-full w-full bg-white rounded-2xl relative">
                             <div
                                  class=" absolute top-[-1.5rem] left-[38%] z-10 w-1/4 h-10 theme_no rounded-3xl flex justify-center items-center text-sm">
                                 <span>幼儿考勤</span>
                             </div>
-                            <div class=" h-full w-full rounded-2xl flex justify-center items-center px-4">
+                            <div class=" h-1/4 w-full flex justify-center items-center">
                                 <div class="  w-1/4 flex flex-col justify-between items-center">
                                     <div
                                          class=" h-12 w-12 rounded-full flex justify-center items-center bg-cyan-400 text-white">
@@ -172,25 +176,52 @@
                                     <span class=" mt-2 text-green-500">缺卡</span>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class=" h-[60%] w-full bg-white rounded-2xl relative py-4 px-4">
-                            <div class=" h-1/5 w-full flex justify-center items-center">
-                                <div class=" w-[35%] h-full flex justify-between items-center">
-                                    <div class=" h-6 w-6 rounded-full p-2 theme_no flex justify-center items-center">
-                                        <el-icon color="white"
-                                                 size="1rem">
-                                            <Bell />
-                                        </el-icon>
+                            <div class=" h-3/4 w-full flex-col justify-start items-center ">
+                                <div class="w-full h-full pb-4 ">
+                                    <div v-if="filteredAttendanceData.length > 0"
+                                         :class="attSec"
+                                         class=" pb-4  w-full  ">
+                                        <div
+                                             class=" w-1/5 text-amber-600 text-right text-sm border border-gray-200 rounded-r-xl px-3">
+                                            缺卡
+                                        </div>
+                                        <div ref="lack"
+                                             class="w-full h-[95%] max-h-full flex justify-start items-center flex-wrap px-8 py-1 overflow-y-auto">
+                                            <div v-for=" kq in filteredAttendanceData"
+                                                 class=" h-6 w-1/3  text-sm flex justify-between items-center  mt-1">
+                                                <div class="   ">{{ kq.name }}</div>
+                                                <!-- <div :class="kqClass(kq)">{{ statusText(kq) }}</div> -->
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span class=" text-gray-500 font-semibold text-base tracking-wider">考勤记录</span>
-                                </div>
-                            </div>
-                            <div class=" h-4/5 w-full overflow-y-auto py-2 mt-2 ">
-                                <div v-for=" kq in AttendanceData.list"
-                                     class=" h-10 w-full py-1 px-4 text-left border-b border-gray-200 flex justify-between items-center  text-sm">
-                                    <div class=" w-1/3 truncate ">{{ kq.name }}</div>
-                                    <div class=" ">{{ kq.enter_time }}</div>
+                                    <div v-if="askAttendanceData.length > 0">
+                                        <div
+                                             class=" w-1/5 text-yellow-500 text-right text-sm border border-gray-200 rounded-r-xl px-3 ">
+                                            请假
+                                        </div>
+                                        <div
+                                             class="w-full flex justify-start items-center flex-wrap px-8 py-1 overflow-y-auto">
+                                            <div v-for=" kq in askAttendanceData"
+                                                 class=" h-6 w-1/3  text-sm flex justify-between items-center  mt-1">
+                                                <div class="   ">{{ kq.name }}</div>
+                                                <!-- <div :class="kqClass(kq)">{{ statusText(kq) }}</div> -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div v-if="reaAttendanceData.length > 0">
+                                        <div
+                                             class=" w-1/5 text-green-500 text-right text-sm border border-gray-200 rounded-r-xl px-3 ">
+                                            实到
+                                        </div>
+                                        <div ref="real"
+                                             class="w-full flex justify-start items-center flex-wrap px-8 py-1  overflow-y-auto ">
+                                            <div v-for=" kq in reaAttendanceData"
+                                                 class=" h-6 w-1/3  text-sm flex justify-between items-center  mt-1">
+                                                <div class="   ">{{ kq.name }}</div>
+                                                <!-- <div :class="kqClass(kq)">{{ statusText(kq) }}</div> -->
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -205,15 +236,15 @@
                         班级风采
                     </div>
                     <div class="h-full w-full flex overflow-x-auto pl-8 py-2 absolute left-0 top-0 smooth-scroll"
-                         v-if="class_style.length > 0"
+                         v-if="class_style && class_style.length > 0"
                          ref="imgContainer">
                         <div v-for="(url, index) in class_style"
-                             :key="url"
-                             class="border border-indigo-300  ml-4 p-2 rounded-2xl">
-                            <div class="rounded-2xl w-[12rem]  overflow-hidden h-full">
-                                <el-image :preview-src-list="class_style.length > 0 ? class_style : []"
+                             :key="url.key"
+                             class="border border-indigo-300  ml-4 p-2 rounded-2xl h-full">
+                            <div class="rounded-2xl w-[8rem]  overflow-hidden h-full">
+                                <el-image :preview-src-list="class_style"
                                           fit="cover"
-                                          :src="url"
+                                          :src="url.src"
                                           :initial-index="imgIndex"
                                           @show="curIndex(index)"
                                           class="flex-shrink-0 w-full h-full object-contain" />
@@ -223,9 +254,6 @@
                     <div v-else
                          class=" w-full h-full flex justify-center items-center text-gray-400 tracking-wider"> 快去新增相册吧</div>
                 </div>
-
-
-
             </div>
         </div>
 
@@ -254,7 +282,7 @@
 </template>
 
 <script setup>
-import { inject, onMounted, ref, unref, watch, nextTick, onBeforeUnmount, reactive } from 'vue'
+import { inject, onMounted, ref, unref, watch, nextTick, onBeforeUnmount, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import * as socket from "@/utils/tools/socket.js";
 import { useMainStore } from "@/store/index.js";
@@ -271,8 +299,11 @@ const message = ref("");
 const receivedMessage = ref("");
 const curCoding = Tools.storage("l", "get", "coding");
 
-const iconKey = ref('0')
 const imgContainer = ref(null)
+const msgNot = ref(null)
+const real = ref(null)
+const lack = ref(null)
+const food = ref(null)
 const dialogFormVisible = ref(false)
 const formLabelWidth = '140px'
 const formCod = ref('')
@@ -313,18 +344,19 @@ const createFingerprint = () => {
 function timestampToDateTime(timestamp) {
     var date = new Date(timestamp * 1); // 使用时间戳创建 Date 对象
 
-    var year = date.getFullYear();
+    // var year = date.getFullYear();
     var month = ("0" + (date.getMonth() + 1)).slice(-2); // 月份从 0 开始，需要 +1
     var day = ("0" + date.getDate()).slice(-2);
 
-    var hours = ("0" + date.getHours()).slice(-2);
-    var minutes = ("0" + date.getMinutes()).slice(-2);
-    var seconds = ("0" + date.getSeconds()).slice(-2);
+    // var hours = ("0" + date.getHours()).slice(-2);
+    // var minutes = ("0" + date.getMinutes()).slice(-2);
+    // var seconds = ("0" + date.getSeconds()).slice(-2);
 
     // var dateTime = year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
     var dateTime = month + "-" + day;
     return dateTime;
 }
+
 
 // 当前最新时间
 function getCurrentTime() {
@@ -359,12 +391,37 @@ const editCod = () => {
     router.go(0)
     // 刷新
 }
+// 考勤
+const attSec = computed(() => {
+    if (filteredAttendanceData.length > 0 && askAttendanceData.length > 0 && reaAttendanceData.length > 0) {
+        return ' h-1/3 '
+    } else if (filteredAttendanceData.length > 0 && askAttendanceData.length === 0 && reaAttendanceData.length > 0) {
+        return ' h-1/2 '
+    } else if (filteredAttendanceData.length > 0 || reaAttendanceData.length > 0 || askAttendanceData.length > 0) {
+        return ' h-1/3 '
+    }
+})
+
+// 膳食
+const Dietlist = computed(() => {
+    return RecipesData.value.recipes ? RecipesData.value.recipes.list : [];
+})
+// 缺卡
+const filteredAttendanceData = computed(() => {
+    return AttendanceData.value.list.filter((kq) => kq.status === 3);
+})
+// 请假
+const askAttendanceData = computed(() => {
+    return AttendanceData.value.list.filter((kq) => kq.status === 4);
+})
+// 实到
+const reaAttendanceData = computed(() => {
+    return AttendanceData.value.list.filter((kq) => kq.status === 1 || kq.status === 5);
+})
 
 watch(
     () => coding.value,
     (v) => {
-
-        console.log(v, coding, Binding.value, curCoding);
         if (v || curCoding && Binding.value) {
             setTimeout(() => {
                 loading.value = false
@@ -383,86 +440,126 @@ const getWeather = async () => {
         class_id: ParkInfo.value.class_id
     }).then((res) => {
         ParkInfo.value.weather = res.data.code[0];
-        switch (ParkInfo.weather.casts
-        [0].dayweather) {
-            case '多云':
-                iconKey.vlaue = '1'
-                break;
-            case '阴天':
-                iconKey.vlaue = '2'
-                break;
-            case '晴天':
-                iconKey.vlaue = '3'
-                break;
-
-            default:
-                break;
-        }
     })
 }
 
-function autoScroll(el) {
+function autoScroll(el, axis = "y", time = 70) {
     if (!el) return;
+    let direction = 1; // 滚动方向，1 为正向，-1 为反向
+    let timer = null; // 定时器 ID
+    const buffer = 10; // 缓冲距离
+
     const scroll = () => {
         let parentDom = el;
         // 判断是否有滚动条
-        if (parentDom.scrollWidth <= parentDom.clientWidth) return;
-        //判断元素是否滚动到右边界 (滚动距离 + 可视宽度 = 元素总宽度)
-        if (
-            parentDom.scrollLeft + parentDom.clientWidth ===
-            parentDom.scrollWidth
-        ) {
-            parentDom.scrollLeft = 0;
+        if (axis === "x" && parentDom.scrollWidth <= parentDom.clientWidth) return;
+        if (axis === "y" && parentDom.scrollHeight <= parentDom.clientHeight) return;
+        // 判断元素是否滚动到边界
+        if (axis === "x") {
+            if (
+                parentDom.scrollLeft + parentDom.clientWidth >=
+                parentDom.scrollWidth - buffer
+            ) {
+                direction = -1; // 触底后改变滚动方向为反向
+            } else if (parentDom.scrollLeft <= buffer) {
+                direction = 1; // 触顶后改变滚动方向为正向
+            }
+            parentDom.scrollLeft += direction * 2;
         } else {
-            parentDom.scrollLeft++; // 元素自增距离左边界
+            if (
+                parentDom.scrollTop + parentDom.clientHeight >=
+                parentDom.scrollHeight - buffer
+            ) {
+                direction = -1; // 触底后改变滚动方向为反向
+            } else if (parentDom.scrollTop <= buffer) {
+                direction = 1; // 触顶后改变滚动方向为正向
+            }
+            parentDom.scrollTop += direction * 2;
         }
     };
-    let timer = setInterval(scroll, 100);
-    el.onmouseenter = () => {
-        clearInterval(timer);
+
+    const startScroll = () => {
+        timer = setInterval(scroll, time); // 每隔 50 毫秒执行一次滚动函数
+    };
+
+    const stopScroll = () => {
+        clearInterval(timer); // 清除定时器
         timer = null;
     };
-    el.onmouseleave = function () {
-        timer = setInterval(scroll, 100);
-    };
+
+    el.addEventListener("mouseenter", stopScroll); // 鼠标进入事件，停止滚动
+    el.addEventListener("mouseleave", startScroll); // 鼠标离开事件，开始滚动
+
+    startScroll(); // 初始状态下开始滚动
 }
 
-watch(() => ParkInfo.value, (v) => {
-    if (v && v.weather) {
-        switch (v.weather.casts[0].dayweather) {
-            case '多云':
-                iconKey.value = '1';
-                break;
-            case '阴天':
-                iconKey.value = '2';
-                break;
-            case '晴天':
-                iconKey.value = '3';
-                break;
-            default:
-                break;
-        }
-    }
-});
+
 watch(() => imgContainer.value, (v) => {
     if (v && !loading.value && Binding.value) {
-        autoScroll(v)
+        autoScroll(v, 'x')
+    }
+});
+// watch(() => msgNot.value, (v) => {
+//     if (v && !loading.value && Binding.value) {
+//         autoScroll(v, 'y')
+//     }
+// });
+watch(() => lack.value, (v) => {
+    if (v && !loading.value && Binding.value) {
+        autoScroll(v, 'y', 150)
+    }
+});
+watch(() => real.value, (v) => {
+    if (v && !loading.value && Binding.value) {
+        autoScroll(v, 'y')
+    }
+});
+watch(() => food.value, (v) => {
+    if (v && !loading.value && Binding.value) {
+        autoScroll(v, 'y')
     }
 });
 
 
-// 全屏是否可用
+
 
 
 getCurrentTime()
+
+
+//进入全屏
+function requestFullScreen() {
+    var de = document.documentElement;
+    if (de.requestFullscreen) {
+        de.requestFullscreen();
+    } else if (de.mozRequestFullScreen) {
+        de.mozRequestFullScreen();
+    } else if (de.webkitRequestFullScreen) {
+        de.webkitRequestFullScreen();
+    }
+}
+//退出全屏
+function exitFullscreen() {
+    var de = document;
+    if (de.exitFullscreen) {
+        de.exitFullscreen();
+    } else if (de.mozCancelFullScreen) {
+        de.mozCancelFullScreen();
+    } else if (de.webkitCancelFullScreen) {
+        de.webkitCancelFullScreen();
+    }
+}
+
 onMounted(() => {
+    // 点击切换全屏模式
+
+
     setInterval(() => {
         getCurrentTime()
     }, 1000);
     setInterval(() => {
         getWeather()
     }, 60 * 60000);
-
 })
 
 // 页面销毁时
@@ -470,6 +567,7 @@ onBeforeUnmount(() => {
     closeSocket();
     // 清楚定时器
     clearInterval(getCurrentTime());
+    clearInterval(getWeather());
 })
 
 

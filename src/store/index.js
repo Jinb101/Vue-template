@@ -12,22 +12,23 @@ export const useMainStore = defineStore("main", {
     return {
       loading: true,
       // 设备编码
-      coding: null,
+      coding: undefined,
       // 是否绑定
       Binding: true,
       // 园所信息
-      ParkInfo: null,
+      ParkInfo: undefined,
       // 通知数据
-      NoticeData: null,
+      NoticeData: undefined,
       // 考勤数据
-      AttendanceData: null,
+      AttendanceData: undefined,
       // 营养食谱数据
-      RecipesData: null,
+      RecipesData: undefined,
       // 班级风采数据
       class_video: "",
+      videoNum: 0,
       class_style: [],
       // 老师考勤数据
-      TeacherData: null,
+      TeacherData: undefined,
     };
   },
   persist: true, // 添加 persist 属性

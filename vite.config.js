@@ -21,7 +21,8 @@ export default defineConfig({
             targets: ['defaults', 'not IE 11']
           })
     ],
-    base: './',
+    // 打包路径设置
+    base: process.env.NODE_ENV === 'production' ? './' : '/',
     // // 静态资源服务的文件夹，默认 public
     publicDir: 'public',
     // 自定义组件

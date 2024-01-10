@@ -31,14 +31,14 @@ const { coding } = storeToRefs(mainStore);
 let socket = null;
 
 function connectToServer() {
-  socket = new WebSocket("ws://121.43.179.182:2347");
+  socket = new WebSocket("wss://www.jsxrk.xin:2347");
 
   socket.addEventListener("open", () => {
     console.log("Connected to server");
     sendLoginEvent();
+    mainStore.Binding = true;
     setTimeout(() => {
       mainStore.loading = false;
-      mainStore.Binding = true;
     }, 1000);
   });
 
@@ -111,16 +111,68 @@ function handleIncomingMessage(event) {
       console.log("Child attendance data:", data);
       break;
     case type.ADD_ATTENDANCE:
-      console.log("单条幼儿考勤 data:", data);
+      console.log(mainStore.AttendanceData);
+      const curAtt = data.data;
+      const index = mainStore.AttendanceData.list.findIndex(
+        (item) => item.id === curAtt.id
+      );
+      if (index !== -1) {
+        mainStore.AttendanceData.list[index] = curAtt;
+        if (curAtt.status === 1 || curAtt.status === 5) {
+          mainStore.AttendanceData.realistic_to++;
+          mainStore.AttendanceData.lack_of_cards--;
+        } else if (curAtt.status === 4) {
+          mainStore.AttendanceData.ask_for_leave++;
+          mainStore.AttendanceData.lack_of_cards--;
+        } else if (curAtt.status === 3) {
+          mainStore.AttendanceData.lack_of_cards++;
+          mainStore.AttendanceData.realistic_to--;
+        }
+        console.log("修改成功");
+      }
+      console.log("单条幼儿考勤 data:", mainStore.AttendanceData, data);
       break;
     case type.CLASS_STYLE:
-      mainStore.class_style = data.data.class_style;
+      if (data.class_type === "increase") {
+        // 图片新增
+        const keys = Object.keys(data.data);
+        const key = keys[0];
+        mainStore.class_style.unshift({
+          key: key,
+          src: data.data[key],
+        });
+        break;
+      } else if (data.class_type === "delete") {
+        const id = data.data.class_style_id;
+        console.log(mainStore.class_style);
+        const index = mainStore.class_style.findIndex(
+          (item) => item.key * 1 === id
+        );
+        if (index !== -1) {
+          mainStore.class_style.splice(index, 1);
+          console.log("删除成功");
+        } else {
+          console.log("未找到相应的元素");
+        }
+        console.log(data);
+        break;
+      }
+      if (data.class_type) {
+        return;
+      }
+      let style = data.data.class_style;
+      for (const key in style) {
+        mainStore.class_style.push({
+          key: key,
+          src: style[key],
+        });
+        console.log(key, style[key], mainStore.class_style);
+      }
       mainStore.class_video = data.data.class_video;
-      console.log("Class style data:", data);
       break;
     case type.CLASSVIDE:
-      mainStore.class_style = data.data.class_style;
-      mainStore.class_video = data.data.class_video;
+      mainStore.class_video = data.data;
+      mainStore.videoNum++;
       console.log("班级视频添加 data:", data);
       console.log(mainStore.class_video);
       break;
@@ -142,6 +194,15 @@ function handleIncomingMessage(event) {
       console.log("老师考勤  data:", data);
       break;
     case type.SINGLE_TEACHER:
+      console.log(mainStore.TeacherData);
+      const curTe = data.data;
+      const teIndex = mainStore.TeacherData.value.findIndex(
+        (item) => item.id === curTe.id
+      );
+      if (teIndex !== -1) {
+        mainStore.TeacherData.value[index] = curAtt;
+        console.log("修改成功");
+      }
       //   mainStore.TeacherData = data.data;
       console.log("单条老师考勤  data:", data);
       break;
@@ -157,6 +218,7 @@ function sendPingEvent() {
     operationType: "BANPAI_PING",
     equipment_number: curCoding || coding.value,
   };
+  console.log("pin");
   sendMessage(JSON.stringify(pingEvent));
 }
 
@@ -166,7 +228,7 @@ function reconnect() {
     socket.addEventListener("open", () => {
       console.log("Reconnected to server");
     });
-    socket = new WebSocket("ws://121.43.179.182:2347");
+    socket = new WebSocket("wss://www.jsxrk.xin:2347");
   }
 }
 
@@ -174,6 +236,7 @@ function sendMessage(message) {
   if (socket.readyState === WebSocket.OPEN) {
     socket.send(message);
   } else {
+    reconnect();
     console.error("Socket is not open, message not sent:", message);
   }
 }

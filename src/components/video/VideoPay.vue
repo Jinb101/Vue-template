@@ -4,16 +4,19 @@
                ref="videoRef"
                muted
                poster="@/assets/images/1.jpg"
-               class="video-js w-full h-full">
+               class="video-js w-full h-full"
+               playsinline>
             <source :src="currentSrc" />
         </video>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch, nextTick } from 'vue'
 import videojs from 'video.js'
 import 'video.js/dist/video-js.min.css'
+import { useMainStore } from "@/store/index.js";
+import { storeToRefs } from "pinia";
 
 const props = defineProps({
     list: {
@@ -29,6 +32,11 @@ const props = defineProps({
         default: '100%'
     }
 })
+
+
+const mainStor = useMainStore();
+const { videoNum, class_video } = storeToRefs(mainStor);
+
 
 const videoRef = ref(null)
 let videoPlayer = null
@@ -71,9 +79,11 @@ const initVideo = () => {
 }
 
 const onPlayerReady = () => {
-    videoRef.value.play() // 在视频准备好后调用 play() 方法
-    videoPlayer.on('ended', onVideoEnded)
-    videoPlayer.on('error', onVideoError)
+    nextTick(() => {
+        videoRef.value.play() // 在视频准备好后调用 play() 方法
+        videoPlayer.on('ended', onVideoEnded)
+        videoPlayer.on('error', onVideoError)
+    })
 }
 
 const onVideoEnded = () => {
@@ -91,6 +101,19 @@ const onVideoError = () => {
         // 可以根据需求处理没有更多视频的情况，例如停止播放或显示错误信息等
     }
 }
+
+watch(
+    () => videoNum.value,
+    (v, old) => {
+        nextTick(() => {
+            if (v > old) {
+                currentSrcIndex = 0
+                currentSrc.value = class_video.value
+            }
+
+        })
+    }
+)
 
 onMounted(() => {
     initVideo()
@@ -114,4 +137,35 @@ onBeforeUnmount(() => {
 
 #my-player {
     border-radius: 6px;
-}</style>
+}
+
+video::-webkit-media-controls-overlay-play-button {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+}
+
+video::-webkit-media-controls-start-playback-button {
+    width: 60px;
+    height: 60px;
+    background-color: #fff;
+    border-radius: 50%;
+    position: relative;
+    top: -30px;
+    left: calc(50% - 30px);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+video::-webkit-media-controls-start-playback-button:before {
+    content: "";
+    display: block;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 15px 0 15px 25px;
+    border-color: transparent transparent transparent #000;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+</style>
