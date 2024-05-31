@@ -8,34 +8,19 @@ import page from './page';
 
 const routeConfigurations = [
     // 动态添加的路由配置对象
-    // { path, component, name, title, isTab, hasHeader, type, keepAlive, to, children }
-    // { path: "/page", component: "page/index.vue", name: "page",{metaObj}},
+    // { path: "/page",name: "page", component: "page/index.vue", metaObj:{...meta}},
     ...page,
 ];
 
 
-const createRouteObject = ({
+const createRouteObject = ({ path, name, component, metaObj, children = [] }) => ({
     path,
     name,
-    metaObj
-}) => ({
-    path,
-    name,
-    meta: {
-        ...metaObj
-    },
-    component: () =>
-        import(
-            /* @vite-ignore */
-            `${isComponentPath(component) ? "../" : "../view/"}${component}`
-        ).then((module) => module.default),
-    ...(keepAlive ? { meta: { keepAlive: true } } : {}),
-    ...(children ? { children: children.map(createRouteObject) } : {}),
+    meta: { ...metaObj },
+    component: () => import(`../view/${component}`).then((module) => module.default),
+    ...(metaObj.keepAlive ? { meta: { keepAlive: true } } : {}),
+    ...(children.length > 0 ? { children: children.map(createRouteObject) } : {}),
 });
-
-
-
-const isComponentPath = (path) => path.startsWith("components");
 
 const routes = routeConfigurations.map(createRouteObject);
 const router = createRouter({
@@ -49,9 +34,10 @@ const router = createRouter({
 });
 
 routes.forEach((route) => router.addRoute(route));
-
+console.log(routes, router);
 router.beforeEach((to, from, next) => {
-
+    console.log(to, from);
+    next();
 });
 
 router.afterEach((route) => {

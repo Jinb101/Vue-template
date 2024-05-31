@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint:create": "eslint --init",
-    "lint": "eslint src/**/*.{js,vue} --fix "
+    "lint": "eslint src/**/*.{js,vue} --fix ",
+    "prepare": "husky install"
   },
   "dependencies": {
     "amfe-flexible": "^2.2.1",
@@ -35,14 +36,17 @@
     "weixin-jsapi": "^1.1.0"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.3.0",
+    "@commitlint/config-conventional": "^19.2.2",
     "@vitejs/plugin-legacy": "^5.2.0",
     "@vitejs/plugin-vue": "^4.5.0",
     "@vue/cli-plugin-router": "^5.0.8",
     "autoprefixer": "^10.4.16",
     "eslint": "^8.54.0",
     "eslint-plugin-vue": "^9.18.1",
+    "husky": "^8.0.3",
     "less": "^3.10.3",
-    "lint-staged": "^15.1.0",
+    "lint-staged": "^15.2.5",
     "path-browserify": "^1.0.1",
     "postcss": "^8.4.31",
     "sass": "^1.69.5",
@@ -54,8 +58,16 @@
   "lint-staged": {
     "*.{js,jsx,vue}": [
       "npm run lint",
-      "git add"
+      "git add",
+      "prettier --write",
+      "eslint --fix"
     ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
   },
   "gitHooks": {
     "pre-commit": "lint-staged"

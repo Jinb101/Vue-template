@@ -19,15 +19,12 @@ import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 import { userConfig } from "@/utils/config/user.config.js";
 // wxsdk
 import wx from "weixin-jsapi";
-
+import loading from '@/utils/tools/loading.js';
 // app 实例
 const app = createApp(App);
-
-
 //  Pinia 实例
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
-
 app.use(pinia);
 
 const mainStor = useStore();
@@ -39,6 +36,10 @@ const PiniaStor = storeToRefs(mainStor);
 app.config.globalProperties.http = http
 app.config.globalProperties.stor = useStore
 app.config.globalProperties.wxApi = wx
+app.config.globalProperties.$loading = {
+    open: loading.open,
+    close: loading.close,
+};
 
 // 全局组件挂载 还需 在 vite.config.js 中配置 compilerOptions
 // app.component('xxxx', xxxx)
