@@ -31,7 +31,8 @@
     "vant": "^4.8.5",
     "vue": "^3.3.8",
     "vue-router": "^4.2.5",
-    "vue-wechat-title": "^2.0.7"
+    "vue-wechat-title": "^2.0.7",
+    "weixin-jsapi": "^1.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-legacy": "^5.2.0",
