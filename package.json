@@ -11,13 +11,11 @@
     "lint": "eslint src/**/*.{js,vue} --fix "
   },
   "dependencies": {
-    "@element-plus/icons-vue": "^2.3.1",
     "amfe-flexible": "^2.2.1",
     "axios": "^1.6.2",
     "babel-eslint": "^10.1.0",
     "babel-helper-vue-jsx-merge-props": "^2.0.3",
     "crypto-js": "^4.2.0",
-    "element-plus": "^2.4.4",
     "eslint-plugin-import": "^2.29.0",
     "fingerprintjs2": "^2.1.4",
     "js-audio-recorder": "^1.0.7",
@@ -28,8 +26,6 @@
     "postcss-pxtorem": "^6.0.0",
     "postcss-value-parser": "^4.2.0",
     "qs": "^6.11.2",
-    "socket.io-client": "^4.7.2",
-    "video.js": "^8.6.1",
     "vue": "^3.3.8",
     "vue-router": "^4.2.5",
     "vue-wechat-title": "^2.0.7"
