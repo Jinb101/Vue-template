@@ -17,7 +17,7 @@ const createRouteObject = ({ path, name, component, metaObj, children = [] }) =>
     path,
     name,
     meta: { ...metaObj },
-    component: () => import(`../view/${component}`).then((module) => module.default),
+    component: () => import(/* @vite-ignore */`../view/${component}`).then((module) => module.default),
     ...(metaObj.keepAlive ? { meta: { keepAlive: true } } : {}),
     ...(children.length > 0 ? { children: children.map(createRouteObject) } : {}),
 });

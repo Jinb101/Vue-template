@@ -32,14 +32,14 @@ const PiniaStor = storeToRefs(mainStor);
 //
 // app.provide("xxx", xxx);
 // app.config.globalProperties.xxx = xxx
-
-app.config.globalProperties.http = http
-app.config.globalProperties.stor = useStore
-app.config.globalProperties.wxApi = wx
-app.config.globalProperties.$loading = {
+app.provide("http", http);
+app.provide("stor", useStore);
+app.provide("$wxApi", wx);
+app.provide("$loading", {
     open: loading.open,
     close: loading.close,
-};
+});
+
 
 // 全局组件挂载 还需 在 vite.config.js 中配置 compilerOptions
 // app.component('xxxx', xxxx)
